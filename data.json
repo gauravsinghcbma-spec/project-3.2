@@ -1,0 +1,82 @@
+{
+  "1": {
+    "id": 1,
+    "name": "Spiritual Books",
+    "image": "images/books.jpg",
+    "description": "Sacred books and devotional items for spiritual growth.",
+    "products": [
+      {
+        "name": "Bhagavad Gita",
+        "image": "images/bhagavad-gita.jpg",
+        "description": "A timeless spiritual guide with divine teachings.",
+        "price": 250,
+        "quantity": 10
+      },
+      {
+        "name": "Srimad Bhagavatam",
+        "image": "images/bhagavatam.jpg",
+        "description": "A sacred scripture rich with stories and wisdom.",
+        "price": 480,
+        "quantity": 5
+      },
+      {
+        "name": "do",
+        "image": "",
+        "description": "wefg",
+        "price": 2,
+        "quantity": 2
+      },
+      {
+        "name": "ff",
+        "image": "",
+        "description": "ww",
+        "price": 222,
+        "quantity": 2
+      }
+    ]
+  },
+  "2": {
+    "id": 2,
+    "name": "Clothing",
+    "image": "images/clothing.jpg",
+    "description": "Traditional and comfortable clothing for daily wear and festivals.",
+    "products": [
+      {
+        "name": "Dhoti",
+        "image": "images/dhoti.jpg",
+        "description": "Traditional dhoti made for comfort and simplicity.",
+        "price": 799,
+        "quantity": 20
+      },
+      {
+        "name": "Kurta",
+        "image": "images/kurta.jpg",
+        "description": "Soft cotton kurta with a classic style.",
+        "price": 999,
+        "quantity": 15
+      }
+    ]
+  },
+  "3": {
+    "id": 3,
+    "name": "Pooja Items",
+    "image": "images/pooja.jpg",
+    "description": "Beautiful devotional items for daily worship and rituals.",
+    "products": [
+      {
+        "name": "Tilak Box",
+        "image": "images/tilak-box.jpg",
+        "description": "Elegant tilak box for everyday sacred use.",
+        "price": 399,
+        "quantity": 30
+      },
+      {
+        "name": "Diya",
+        "image": "images/diya.jpg",
+        "description": "Traditional diya for prayer and festive lighting.",
+        "price": 199,
+        "quantity": 50
+      }
+    ]
+  }
+}

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Product Store</title>
+    <link rel="stylesheet" href="index.css" />
+</head>
+<body>
+    <div class="main">
+        <div class="hare-krishna">
+            <div class="logo">
+                <img src="SP2.jpeg" alt="logo" class="logo-2" />
+            </div>
+            <div class="input">
+                <input type="text" class="input-2" placeholder="Hare Krishna" />
+            </div>
+            <div class="mantra">
+                <p>Hare Krishna Hare Krishna Krishna Krishna Hare Hare Hare Ram Hare Ram Ram Ram Hare Hare</p>
+            </div>
+        </div>
+
+        <div class="content">
+            <div class="content-left" id="product-list"></div>
+            <div class="mobile-categories" id="mobile-categories"></div>
+            <div class="content-right" id="type-list"></div>
+        </div>
+    </div>
+
+    <!-- Existing Modals -->
+    <div class="overlay hidden" id="overlay">
+        <div class="modal-card" id="modal-card"></div>
+    </div>
+   
+    <!-- Admin Flipping Button -->
+    <div class="admin-btn-container" id="admin-btn">
+        <div class="admin-btn-glow"></div> <!-- New multi-colored glowing shadow -->
+        <div class="admin-btn-border" id="admin-btn-border"></div>
+        <div class="admin-btn-inner" id="admin-btn-inner">
+            <div class="admin-btn-front">
+                <span>Admin</span>
+                <span>Login</span>
+            </div>
+            <div class="admin-btn-back">
+                <span>Admin</span>
+                <span>Login</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Diagonal Login Modal -->
+    <div class="overlay hidden" id="login-overlay" style="z-index: 1001;">
+        <div class="diagonal-box">
+            <div class="diagonal-content">
+                <h3 style="color: #0b5fff; margin-top:0;" id="login-title">Admin Login</h3>
+                <input type="password" id="admin-password" placeholder="Enter Password" />
+                <div class="row" style="margin-top: 15px;">
+                    <button id="login-submit">Enter</button>
+                    <button id="login-cancel" class="secondary">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Glassmorphism Welcome Modal -->
+    <div class="overlay hidden" id="welcome-overlay" style="z-index: 1002;">
+        <div class="glass-box">
+            Welcome to the spiritual world
+        </div>
+    </div>
+
+    <div id="toast-container"></div>
+    <script src="index.js"></script>
+</body>
+</html>
