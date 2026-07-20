@@ -1,10 +1,15 @@
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
+const { Pool } = require('pg');
 
 const app = express();
 const port = process.env.PORT || 3000;
-const dataFile = path.join(__dirname, 'data.json');
+
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  // ssl: { rejectUnauthorized: false }
+});
 
 const defaultCatalog = {
   1: {
@@ -39,37 +44,59 @@ const defaultCatalog = {
   }
 };
 
-function ensureDataFile() {
-  if (!fs.existsSync(dataFile)) {
-    fs.writeFileSync(dataFile, JSON.stringify(defaultCatalog, null, 2));
+async function getCatalogFromDb() {
+  const client = await pool.connect();
+  try {
+    const res = await client.query('SELECT data FROM catalog_data WHERE id = $1', [1]);
+    if (res.rowCount === 0) {
+      // initialize DB row
+      await client.query('INSERT INTO catalog_data (id, data) VALUES ($1, $2)', [1, defaultCatalog]);
+      return defaultCatalog;
+    }
+    return res.rows[0].data;
+  } finally {
+    client.release();
   }
 }
 
-function readCatalog() {
-  ensureDataFile();
-  return JSON.parse(fs.readFileSync(dataFile, 'utf8'));
-}
-
-function writeCatalog(data) {
-  ensureDataFile();
-  fs.writeFileSync(dataFile, JSON.stringify(data, null, 2));
-  return data;
+async function saveCatalogToDb(data) {
+  const client = await pool.connect();
+  try {
+    await client.query(
+      `INSERT INTO catalog_data (id, data) VALUES ($1, $2)
+       ON CONFLICT (id) DO UPDATE SET data = EXCLUDED.data`,
+      [1, data]
+    );
+    return data;
+  } finally {
+    client.release();
+  }
 }
 
 app.use(express.json({ limit: '1mb' }));
 app.use(express.static(__dirname));
 
-app.get('/api/catalog', (req, res) => {
-  res.json(readCatalog());
+app.get('/api/catalog', async (req, res) => {
+  try {
+    const catalog = await getCatalogFromDb();
+    res.json(catalog);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to read catalog' });
+  }
 });
 
-app.post('/api/catalog', (req, res) => {
+app.post('/api/catalog', async (req, res) => {
   if (!req.body || typeof req.body !== 'object') {
     return res.status(400).json({ error: 'Invalid catalog payload' });
   }
-
-  const saved = writeCatalog(req.body);
-  res.json(saved);
+  try {
+    const saved = await saveCatalogToDb(req.body);
+    res.json(saved);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to save catalog' });
+  }
 });
 
 app.get('*', (req, res) => {

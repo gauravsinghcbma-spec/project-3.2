@@ -110,7 +110,7 @@ loginCancel.addEventListener('click', () => {
 });
 
 loginSubmit.addEventListener('click', () => {
-    if (passwordInput.value === 'admin123') { // Admin Password
+    if (passwordInput.value === '@MMM-VOICE-108@') { // Admin Password
         loginOverlay.classList.add('hidden');
         welcomeOverlay.classList.remove('hidden');
 
