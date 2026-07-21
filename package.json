@@ -3,8 +3,7 @@
   "version": "1.0.0",
   "description": "Storefront with persistent admin updates",
   "scripts": {
-    "start": "node server.js",
-    "migrate": "node migrate.js"
+    "start": "node migrate.js && node server.js",
   },
   "dependencies": {
     "express": "^4.21.2",
