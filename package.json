@@ -4,7 +4,8 @@
   "description": "Storefront with persistent admin updates",
   "scripts": {
     "start": "node server.js",
-    "migrate": "node migrate.js"
+    "migrate": "node migrate.js",
+    "postinstall": "node migrate.js"
   },
   "dependencies": {
     "express": "^4.21.2"
