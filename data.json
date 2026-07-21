@@ -6,10 +6,13 @@
     "products": [
       {
         "name": "Bhagavad Gita",
-        "image": "images/bhagavad-gita.jpg",
+        "images": [
+          "https://m.media-amazon.com/images/I/61gHu9NWDmL._SX679_.jpg",
+          "https://m.media-amazon.com/images/I/81ZX44ONpGL._SX679_.jpg"
+        ],
+        "description": "A timeless spiritual guide with divine teachings.",
         "price": 250,
-        "quantity": 10,
-        "description": "A timeless spiritual guide with divine teachings."
+        "quantity": 7
       },
       {
         "name": "Srimad Bhagavatam",
@@ -28,10 +31,14 @@
     "products": [
       {
         "name": "Bottle",
-        "image": "https://m.media-amazon.com/images/I/818EOU7f4PS._SL1500_.jpg",
+        "images": [
+          "https://m.media-amazon.com/images/I/818EOU7f4PS._SL1500_.jpg",
+          "https://m.media-amazon.com/images/I/81n4d4H9g+S._SX679_.jpg",
+          "https://m.media-amazon.com/images/I/71AtzW2cTXS._SX679_.jpg"
+        ],
+        "description": "MILTON Helix 1000 Pet Water Bottle 1 Litre Each BPA Free, Leak Proof, Office Bottle Home Kitchen Travel Bottle,  Prize Per Bottle \n\n",
         "price": 100,
-        "quantity": 3,
-        "description": "MILTON Helix 1000 Pet Water Bottle 1 Litre Each BPA Free, Leak Proof, Office Bottle Home Kitchen Travel Bottle,  Prize Per Bottle \n\n"
+        "quantity": 3
       }
     ],
     "description": "Bottle "
@@ -43,17 +50,24 @@
     "products": [
       {
         "name": "Ear Plug",
-        "image": "https://m.media-amazon.com/images/I/71MMT4HYIiL._SX522_.jpg",
+        "images": [
+          "https://m.media-amazon.com/images/I/71MMT4HYIiL._SL1500_.jpg",
+          "https://m.media-amazon.com/images/I/71-ekdZGmEL._SX522_.jpg",
+          "https://m.media-amazon.com/images/I/71YU0aftI+L._SX522_.jpg"
+        ],
+        "description": "3M 1110 Ear Plugs Corded, Extra Soft, Reusable Earbuds Noise Cancellation, Soundproof Earplug Use For Underwater, Meditation, Study, Flight Travel,Sleeping Sound Block Up To 29 Decibel",
         "price": 20,
-        "quantity": 10,
-        "description": "3M 1110 Ear Plugs Corded, Extra Soft, Reusable Earbuds Noise Cancellation, Soundproof Earplug Use For Underwater, Meditation, Study, Flight Travel,Sleeping Sound Block Up To 29 Decibel"
+        "quantity": 10
       },
       {
-        "name": "Ear Plug",
-        "image": "https://m.media-amazon.com/images/I/51CidiAFOKL._SX679_.jpg",
+        "name": "Ear Plug 2.0",
+        "images": [
+          "https://m.media-amazon.com/images/I/51CidiAFOKL._SX679_.jpg"
+        ],
+        "description": "VENUS - N-303 - Washable Reusable Earplugs - ISI Approved, Sound Reducing NRR 27 dB for Yoga, Airplane, Travel, Meditation & Industrial Use - Orange",
         "price": 50,
         "quantity": 10,
-        "description": "VENUS - N-303 - Washable Reusable Earplugs - ISI Approved, Sound Reducing NRR 27 dB for Yoga, Airplane, Travel, Meditation & Industrial Use - Orange"
+        "image": "https://m.media-amazon.com/images/I/51CidiAFOKL._SX679_.jpg"
       }
     ],
     "description": "Ear plug "
@@ -65,10 +79,13 @@
     "products": [
       {
         "name": "Kumkum Gopi Chandan",
-        "image": "https://m.media-amazon.com/images/I/51ovxidNysL._SX679_.jpg",
+        "images": [
+          "https://m.media-amazon.com/images/I/51ovxidNysL._SX679_.jpg"
+        ],
+        "description": "Kumkum Gopi Chandan Bati 70 Grams | Solid Chandan Bar for Forehead Tilak | Pure White Tika for Rituals",
         "price": 15,
         "quantity": 15,
-        "description": "Kumkum Gopi Chandan Bati 70 Grams | Solid Chandan Bar for Forehead Tilak | Pure White Tika for Rituals"
+        "image": "https://m.media-amazon.com/images/I/51ovxidNysL._SX679_.jpg"
       }
     ],
     "description": ""

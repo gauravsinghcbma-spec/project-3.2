@@ -15,6 +15,16 @@
             <div class="input">
                 <input type="text" class="input-2" placeholder="Hare Krishna" />
             </div>
+            <div class="header-controls">
+                <span id="user-status" class="user-status" title="Login to continue"><span class="user-icon">👤</span></span>
+                <button id="header-menu-btn" class="menu-btn">☰</button>
+                <div class="menu-dropdown hidden" id="header-menu-dropdown">
+                    <button class="menu-item" id="menu-login-btn">User Login</button>
+                    <button class="menu-item" id="menu-signup-btn">Create Account</button>
+                    <button class="menu-item" id="menu-cart-btn">Cart <span id="menu-cart-count">0</span></button>
+                    <button class="menu-item" id="menu-orders-btn">Orders</button>
+                </div>
+            </div>
             <div class="mantra">
                 <p>Hare Krishna Hare Krishna Krishna Krishna Hare Hare Hare Ram Hare Ram Ram Ram Hare Hare</p>
             </div>
@@ -66,6 +76,13 @@
     <div class="overlay hidden" id="welcome-overlay" style="z-index: 1002;">
         <div class="glass-box">
             Welcome to the spiritual world
+        </div>
+    </div>
+
+    <!-- User Login Modal -->
+    <div class="overlay hidden" id="user-login-overlay" style="z-index: 1003;">
+        <div class="modal-card" id="user-login-content">
+            <!-- Login/signup content is rendered dynamically -->
         </div>
     </div>
 
