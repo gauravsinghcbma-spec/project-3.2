@@ -2,10 +2,11 @@ const { Pool } = require('pg');
 const fs = require('fs');
 const path = require('path');
 
+const dbUrl = process.env.DATABASE_URL || 'postgresql://postgres:xbrDXDxvacRISsCdOQQLWNUvVyGTsCGB@tokaido.proxy.rlwy.net:5432/railway';
+
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  // If Railway requires SSL, enable below:
-  // ssl: { rejectUnauthorized: false }
+  connectionString: dbUrl,
+  ssl: { rejectUnauthorized: false }
 });
 
 async function run() {

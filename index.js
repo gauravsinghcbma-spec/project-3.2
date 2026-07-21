@@ -332,8 +332,47 @@ function openPaymentModal(product, quantity) {
     document.getElementById('close-modal').addEventListener('click', closeModal);
 }
 
+async function processOrderAndDecreaseQuantity() {
+    // Find the product in categories and decrease quantity
+    let productFound = false;
+    for (let categoryId in categories) {
+        const category = categories[categoryId];
+        for (let i = 0; i < category.products.length; i++) {
+            const product = category.products[i];
+            if (product.name === pendingOrder.product.name && 
+                product.price === pendingOrder.product.price) {
+                // Found the product - decrease quantity
+                const newQuantity = product.quantity - pendingOrder.quantity;
+                if (newQuantity >= 0) {
+                    categories[categoryId].products[i].quantity = newQuantity;
+                    productFound = true;
+                    break;
+                } else {
+                    showToast('Not enough quantity available', true);
+                    return false;
+                }
+            }
+        }
+        if (productFound) break;
+    }
+    
+    if (productFound) {
+        // Persist the updated catalog to database
+        await persistCatalog();
+        showToast('Order confirmed! Quantity updated.');
+        return true;
+    } else {
+        showToast('Could not find product to update quantity', true);
+        return false;
+    }
+}
+
 function openPhoneModal() {
     const message = `Hello! This person has made a payment of ₹${pendingOrder.product.price * pendingOrder.quantity} for ${pendingOrder.product.name} with quantity ${pendingOrder.quantity}.`;
+    
+    // Process order and decrease quantity
+    processOrderAndDecreaseQuantity();
+    
     modalCard.innerHTML = `
         <h3>Thank You</h3>
         <p>We will contact you soon after verifying your payment details.</p>

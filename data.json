@@ -3,87 +3,74 @@
     "id": 1,
     "name": "Spiritual Books",
     "image": "images/books.jpg",
-    "description": "Sacred books and devotional items for spiritual growth.",
     "products": [
       {
         "name": "Bhagavad Gita",
         "image": "images/bhagavad-gita.jpg",
-        "description": "A timeless spiritual guide with divine teachings.",
         "price": 250,
-        "quantity": 10
+        "quantity": 10,
+        "description": "A timeless spiritual guide with divine teachings."
       },
       {
         "name": "Srimad Bhagavatam",
         "image": "images/bhagavatam.jpg",
-        "description": "A sacred scripture rich with stories and wisdom.",
         "price": 480,
-        "quantity": 5
-      },
-      {
-        "name": "do",
-        "image": "https://www.pexels.com/photo/historical-european-chateau-viewed-through-garden-archway-38359534/",
-        "description": "wefg",
-        "price": 2,
-        "quantity": 2
-      },
-      {
-        "name": "ff",
-        "image": "https://www.magnific.com/serie/21794900#from_element=series_block",
-        "description": "ww",
-        "price": 222,
-        "quantity": 2
-      },
-      {
-        "name": "dd",
-        "image": "https://m.media-amazon.com/images/I/71ndbdVgC7L._SX679_.jpg",
-        "description": "dd",
-        "price": 22,
-        "quantity": 22
+        "quantity": 5,
+        "description": "A sacred scripture rich with stories and wisdom."
       }
-    ]
+    ],
+    "description": "Sacred books and devotional items for spiritual growth."
   },
-  "2": {
-    "id": 2,
-    "name": "Clothing",
-    "image": "images/clothing.jpg",
-    "description": "Traditional and comfortable clothing for daily wear and festivals.",
+  "1784609354851": {
+    "id": 1784609354851,
+    "name": "Bottles",
+    "image": "https://m.media-amazon.com/images/I/818EOU7f4PS._SL1500_.jpg",
     "products": [
       {
-        "name": "Dhoti",
-        "image": "images/dhoti.jpg",
-        "description": "Traditional dhoti made for comfort and simplicity.",
-        "price": 799,
-        "quantity": 20
-      },
-      {
-        "name": "Kurta",
-        "image": "images/kurta.jpg",
-        "description": "Soft cotton kurta with a classic style.",
-        "price": 999,
-        "quantity": 15
+        "name": "Bottle",
+        "image": "https://m.media-amazon.com/images/I/818EOU7f4PS._SL1500_.jpg",
+        "price": 100,
+        "quantity": 3,
+        "description": "MILTON Helix 1000 Pet Water Bottle 1 Litre Each BPA Free, Leak Proof, Office Bottle Home Kitchen Travel Bottle,  Prize Per Bottle \n\n"
       }
-    ]
+    ],
+    "description": "Bottle "
   },
-  "3": {
-    "id": 3,
-    "name": "Pooja Items",
-    "image": "images/pooja.jpg",
-    "description": "Beautiful devotional items for daily worship and rituals.",
+  "1784609485553": {
+    "id": 1784609485553,
+    "name": "Ear Plug",
+    "image": "https://m.media-amazon.com/images/I/71MMT4HYIiL._SL1500_.jpg",
     "products": [
       {
-        "name": "Tilak Box",
-        "image": "images/tilak-box.jpg",
-        "description": "Elegant tilak box for everyday sacred use.",
-        "price": 399,
-        "quantity": 30
+        "name": "Ear Plug",
+        "image": "https://m.media-amazon.com/images/I/71MMT4HYIiL._SX522_.jpg",
+        "price": 20,
+        "quantity": 10,
+        "description": "3M 1110 Ear Plugs Corded, Extra Soft, Reusable Earbuds Noise Cancellation, Soundproof Earplug Use For Underwater, Meditation, Study, Flight Travel,Sleeping Sound Block Up To 29 Decibel"
       },
       {
-        "name": "Diya",
-        "image": "images/diya.jpg",
-        "description": "Traditional diya for prayer and festive lighting.",
-        "price": 199,
-        "quantity": 50
+        "name": "Ear Plug",
+        "image": "https://m.media-amazon.com/images/I/51CidiAFOKL._SX679_.jpg",
+        "price": 50,
+        "quantity": 10,
+        "description": "VENUS - N-303 - Washable Reusable Earplugs - ISI Approved, Sound Reducing NRR 27 dB for Yoga, Airplane, Travel, Meditation & Industrial Use - Orange"
       }
-    ]
+    ],
+    "description": "Ear plug "
+  },
+  "1784610050280": {
+    "id": 1784610050280,
+    "name": "Chandan",
+    "image": "https://m.media-amazon.com/images/I/51ovxidNysL._SX679_.jpg",
+    "products": [
+      {
+        "name": "Kumkum Gopi Chandan",
+        "image": "https://m.media-amazon.com/images/I/51ovxidNysL._SX679_.jpg",
+        "price": 15,
+        "quantity": 15,
+        "description": "Kumkum Gopi Chandan Bati 70 Grams | Solid Chandan Bar for Forehead Tilak | Pure White Tika for Rituals"
+      }
+    ],
+    "description": ""
   }
 }

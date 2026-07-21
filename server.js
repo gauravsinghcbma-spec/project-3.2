@@ -6,9 +6,11 @@ const { Pool } = require('pg');
 const app = express();
 const port = process.env.PORT || 3000;
 
+const dbUrl = process.env.DATABASE_URL || 'postgresql://postgres:xbrDXDxvacRISsCdOQQLWNUvVyGTsCGB@tokaido.proxy.rlwy.net:5432/railway';
+
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  // ssl: { rejectUnauthorized: false }
+  connectionString: dbUrl,
+  ssl: { rejectUnauthorized: false }
 });
 
 const defaultCatalog = {
@@ -44,32 +46,57 @@ const defaultCatalog = {
   }
 };
 
-async function getCatalogFromDb() {
-  const client = await pool.connect();
+const dataPath = path.join(__dirname, 'data.json');
+
+function loadCatalogFromFile() {
   try {
+    if (fs.existsSync(dataPath)) {
+      return JSON.parse(fs.readFileSync(dataPath, 'utf8'));
+    }
+  } catch (err) {
+    console.warn('Could not read local catalog file, using defaults:', err.message);
+  }
+  return defaultCatalog;
+}
+
+async function getCatalogFromDb() {
+  let client;
+  try {
+    client = await pool.connect();
     const res = await client.query('SELECT data FROM catalog_data WHERE id = $1', [1]);
     if (res.rowCount === 0) {
-      // initialize DB row
       await client.query('INSERT INTO catalog_data (id, data) VALUES ($1, $2)', [1, defaultCatalog]);
       return defaultCatalog;
     }
     return res.rows[0].data;
+  } catch (err) {
+    console.warn('Database unavailable, using local catalog fallback:', err.message);
+    return loadCatalogFromFile();
   } finally {
-    client.release();
+    if (client) {
+      client.release();
+    }
   }
 }
 
 async function saveCatalogToDb(data) {
-  const client = await pool.connect();
+  let client;
   try {
+    client = await pool.connect();
     await client.query(
       `INSERT INTO catalog_data (id, data) VALUES ($1, $2)
        ON CONFLICT (id) DO UPDATE SET data = EXCLUDED.data`,
       [1, data]
     );
     return data;
+  } catch (err) {
+    console.warn('Database unavailable, saving catalog locally:', err.message);
+    fs.writeFileSync(dataPath, JSON.stringify(data, null, 2));
+    return data;
   } finally {
-    client.release();
+    if (client) {
+      client.release();
+    }
   }
 }
 
