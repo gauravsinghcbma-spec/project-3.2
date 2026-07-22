@@ -117,6 +117,35 @@ async function savePending(data) {
   return await saveDbData('pending_data', data);
 }
 
+// ================= STOCK REDUCTION HELPER =================
+
+async function reduceProductStock(productName, quantityToReduce = 1) {
+  if (!productName) return;
+  try {
+    const catalog = await loadCatalog();
+    let updated = false;
+
+    for (const category of Object.values(catalog)) {
+      if (!Array.isArray(category?.products)) continue;
+
+      const product = category.products.find((p) => p.name === productName);
+      if (product) {
+        const currentQty = Number(product.quantity || 0);
+        product.quantity = Math.max(0, currentQty - Number(quantityToReduce));
+        updated = true;
+        break;
+      }
+    }
+
+    if (updated) {
+      await saveCatalog(catalog);
+      console.log(`Stock reduced for "${productName}" by ${quantityToReduce}`);
+    }
+  } catch (err) {
+    console.error('Error reducing product stock:', err.message);
+  }
+}
+
 // ================= USER HELPERS =================
 
 function findUserByUsernameIn(usersArray, username) {
@@ -180,7 +209,7 @@ app.use(express.json({
 }));
 app.use(express.static(__dirname));
 
-// Disable client caching for fresh reloads
+// Prevent stale caching on browser refresh
 app.use((req, res, next) => {
   res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
   next();
@@ -546,6 +575,9 @@ app.post('/api/phonepe-webhook', async (req, res) => {
 
       await savePending(pendingMap);
 
+      // Reduce product stock in database
+      await reduceProductStock(pending.productName, pending.quantity || 1);
+
       if (pending.username) {
         const userData = await loadUsers();
         const user = findUserByUsernameIn(userData.users, pending.username);
@@ -663,6 +695,9 @@ app.post('/api/verify-upi-payment', async (req, res) => {
     pending.submittedAt = new Date().toISOString();
 
     await savePending(pendingMap);
+
+    // Reduce product stock in database
+    await reduceProductStock(productName, req.body.quantity || pending.quantity || 1);
 
     if (username) {
       const user = findUserByUsernameIn(userData.users, username);
