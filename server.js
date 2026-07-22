@@ -1,5 +1,4 @@
 const express = require('express');
-const fs = require('fs');
 const path = require('path');
 const { Pool } = require('pg');
 const QRCode = require('qrcode');
@@ -14,33 +13,6 @@ const UPI_CONFIG = {
   merchantName: 'Gaurav',
   merchantCode: 'SPIRITUAL_STORE'
 };
-
-const pendingTransactions = new Map();
-const pendingPath = path.join(__dirname, 'pending.json');
-
-function loadPendingFromFile() {
-  try {
-    if (fs.existsSync(pendingPath)) {
-      const raw = JSON.parse(fs.readFileSync(pendingPath, 'utf8')) || {};
-      Object.keys(raw).forEach((k) => pendingTransactions.set(k, raw[k]));
-    }
-  } catch (err) {
-    console.warn('Could not load pending transactions:', err.message);
-  }
-}
-
-function savePendingToFile() {
-  try {
-    const obj = {};
-    for (const [k, v] of pendingTransactions.entries()) obj[k] = v;
-    fs.writeFileSync(pendingPath, JSON.stringify(obj, null, 2));
-  } catch (err) {
-    console.warn('Could not save pending transactions:', err.message);
-  }
-}
-
-// Load pending transactions on startup so webhooks can be processed after restarts
-loadPendingFromFile();
 
 const dbUrl = process.env.DATABASE_URL || 'postgresql://postgres:xbrDXDxvacRISsCdOQQLWNUvVyGTsCGB@tokaido.proxy.rlwy.net:5432/railway';
 
@@ -82,64 +54,80 @@ const defaultCatalog = {
   }
 };
 
-const dataPath = path.join(__dirname, 'data.json');
-const usersPath = path.join(__dirname, 'users.json');
-
-function loadCatalogFromFile() {
-  try {
-    if (fs.existsSync(dataPath)) {
-      return JSON.parse(fs.readFileSync(dataPath, 'utf8'));
+const defaultUsers = {
+  users: [
+    {
+      username: 'customer',
+      password: 'user123',
+      name: 'Guest Customer',
+      favorites: [],
+      cart: [],
+      orders: []
     }
+  ]
+};
+
+// ================= POSTGRESQL DATABASE HELPERS =================
+
+async function getDbData(tableName, fallback) {
+  try {
+    const res = await pool.query(`SELECT data FROM ${tableName} WHERE id = 1`);
+    if (res.rows.length > 0) return res.rows[0].data;
   } catch (err) {
-    console.warn('Could not read local catalog file, using defaults:', err.message);
+    console.error(`Error reading ${tableName}:`, err.message);
   }
-  return defaultCatalog;
+  return fallback;
 }
 
-function loadUsersFromFile() {
+async function saveDbData(tableName, data) {
   try {
-    if (fs.existsSync(usersPath)) {
-      const file = JSON.parse(fs.readFileSync(usersPath, 'utf8'));
-      if (file && Array.isArray(file.users)) return file;
-    }
-  } catch (err) {
-    console.warn('Could not read user data file, using default user:', err.message);
-  }
-  return {
-    users: [
-      {
-        username: 'customer',
-        password: 'user123',
-        name: 'Guest Customer',
-        favorites: [],
-        cart: [],
-        orders: []
-      }
-    ]
-  };
-}
-
-function saveUsersToFile(data) {
-  try {
-    fs.writeFileSync(usersPath, JSON.stringify(data, null, 2));
+    await pool.query(
+      `INSERT INTO ${tableName} (id, data) VALUES (1, $1)
+       ON CONFLICT (id) DO UPDATE SET data = EXCLUDED.data`,
+      [data]
+    );
     return data;
   } catch (err) {
-    console.warn('Could not save user data file:', err.message);
+    console.error(`Error saving ${tableName}:`, err.message);
     return data;
   }
 }
 
-const userData = loadUsersFromFile();
-
-function findUserByUsername(username) {
-  return userData.users.find((user) => user.username === username);
+async function loadCatalog() {
+  return await getDbData('catalog_data', defaultCatalog);
 }
 
-function findUserByCredentials(username, password) {
-  return userData.users.find((user) => user.username === username && user.password === password);
+async function saveCatalog(data) {
+  return await saveDbData('catalog_data', data);
 }
 
-function enrichCatalogWithRatings(catalog) {
+async function loadUsers() {
+  return await getDbData('users_data', defaultUsers);
+}
+
+async function saveUsers(data) {
+  return await saveDbData('users_data', data);
+}
+
+async function loadPending() {
+  return await getDbData('pending_data', {});
+}
+
+async function savePending(data) {
+  return await saveDbData('pending_data', data);
+}
+
+// ================= USER HELPERS =================
+
+function findUserByUsernameIn(usersArray, username) {
+  return usersArray.find((user) => user.username === username);
+}
+
+function findUserByCredentialsIn(usersArray, username, password) {
+  return usersArray.find((user) => user.username === username && user.password === password);
+}
+
+function enrichCatalogWithRatings(catalog, userData) {
   const ratingBuckets = new Map();
 
   for (const user of userData.users || []) {
@@ -180,50 +168,7 @@ function findProductInCatalog(catalog, productName) {
   return null;
 }
 
-async function getCatalogFromDb() {
-  let client;
-  try {
-    client = await pool.connect();
-    const res = await client.query('SELECT data FROM catalog_data WHERE id = $1', [1]);
-    if (res.rowCount === 0) {
-      await client.query('INSERT INTO catalog_data (id, data) VALUES ($1, $2)', [1, defaultCatalog]);
-      return defaultCatalog;
-    }
-    return res.rows[0].data;
-  } catch (err) {
-    console.warn('Database unavailable, using local catalog fallback:', err.message);
-    return loadCatalogFromFile();
-  } finally {
-    if (client) {
-      client.release();
-    }
-  }
-}
-
-async function saveCatalogToDb(data) {
-  let client;
-  try {
-    client = await pool.connect();
-    await client.query(
-      `INSERT INTO catalog_data (id, data) VALUES ($1, $2)
-       ON CONFLICT (id) DO UPDATE SET data = EXCLUDED.data`,
-      [1, data]
-    );
-    return data;
-  } catch (err) {
-    console.warn('Database unavailable, saving catalog locally:', err.message);
-    fs.writeFileSync(dataPath, JSON.stringify(data, null, 2));
-    return data;
-  } finally {
-    if (client) {
-      client.release();
-    }
-  }
-}
-
-// Capture raw request body for signature verification when provider sends a
-// signature header. This keeps a raw Buffer copy on `req.rawBody` so webhook
-// handlers can compute HMAC against the exact bytes the provider signed.
+// Middleware
 app.use(express.json({
   limit: '1mb',
   verify: (req, res, buf) => {
@@ -235,19 +180,19 @@ app.use(express.json({
 }));
 app.use(express.static(__dirname));
 
+// Disable client caching for fresh reloads
+app.use((req, res, next) => {
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+  next();
+});
+
+// ================= API ENDPOINTS =================
+
 app.get('/api/catalog', async (req, res) => {
   try {
-    // Prefer local data.json when available so changes are reflected live
-    if (fs.existsSync(dataPath)) {
-      try {
-        const file = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
-        return res.json(enrichCatalogWithRatings(file));
-      } catch (e) {
-        console.warn('Could not parse data.json, falling back to DB:', e.message);
-      }
-    }
-    const catalog = await getCatalogFromDb();
-    res.json(enrichCatalogWithRatings(catalog));
+    const catalog = await loadCatalog();
+    const userData = await loadUsers();
+    res.json(enrichCatalogWithRatings(catalog, userData));
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Failed to read catalog' });
@@ -259,7 +204,7 @@ app.post('/api/catalog', async (req, res) => {
     return res.status(400).json({ error: 'Invalid catalog payload' });
   }
   try {
-    const saved = await saveCatalogToDb(req.body);
+    const saved = await saveCatalog(req.body);
     res.json(saved);
   } catch (err) {
     console.error(err);
@@ -267,14 +212,15 @@ app.post('/api/catalog', async (req, res) => {
   }
 });
 
-app.post('/api/user-login', (req, res) => {
+app.post('/api/user-login', async (req, res) => {
   const { username, password } = req.body || {};
   if (!username || !password) {
     return res.status(400).json({ success: false, message: 'Username and password required' });
   }
-  const user = findUserByCredentials(username, password);
+  const userData = await loadUsers();
+  const user = findUserByCredentialsIn(userData.users, username, password);
   if (!user) {
-    const existingUser = findUserByUsername(username);
+    const existingUser = findUserByUsernameIn(userData.users, username);
     if (existingUser) {
       return res.status(401).json({ success: false, message: 'Incorrect password. Use reset if needed.' });
     }
@@ -284,12 +230,13 @@ app.post('/api/user-login', (req, res) => {
   res.json({ success: true, user: responseUser });
 });
 
-app.post('/api/user-signup', (req, res) => {
+app.post('/api/user-signup', async (req, res) => {
   const { username, password, name } = req.body || {};
   if (!username || !password) {
     return res.status(400).json({ success: false, message: 'Username and password required' });
   }
-  const existingUser = findUserByUsername(username);
+  const userData = await loadUsers();
+  const existingUser = findUserByUsernameIn(userData.users, username);
   if (existingUser) {
     return res.status(409).json({ success: false, message: 'Username already exists. Choose another.' });
   }
@@ -302,49 +249,55 @@ app.post('/api/user-signup', (req, res) => {
     orders: []
   };
   userData.users.push(newUser);
-  saveUsersToFile(userData);
+  await saveUsers(userData);
   const responseUser = { username: newUser.username, name: newUser.name, favorites: newUser.favorites, cart: newUser.cart, orders: newUser.orders };
   res.json({ success: true, user: responseUser });
 });
 
-app.post('/api/user-reset', (req, res) => {
+app.post('/api/user-reset', async (req, res) => {
   const { username, password } = req.body || {};
   if (!username || !password) {
     return res.status(400).json({ success: false, message: 'Username and new password required' });
   }
-  const user = findUserByUsername(username);
+  const userData = await loadUsers();
+  const user = findUserByUsernameIn(userData.users, username);
   if (!user) {
     return res.status(404).json({ success: false, message: 'Account not found. Please sign up.' });
   }
   user.password = password;
-  saveUsersToFile(userData);
+  await saveUsers(userData);
   res.json({ success: true, message: 'Password reset successfully' });
 });
 
-app.get('/api/user-profile', (req, res) => {
+app.get('/api/user-profile', async (req, res) => {
   const username = req.query.username;
   if (!username) return res.status(400).json({ success: false, message: 'Username required' });
-  const user = findUserByUsername(username);
+  const userData = await loadUsers();
+  const user = findUserByUsernameIn(userData.users, username);
   if (!user) return res.status(404).json({ success: false, message: 'User not found' });
   const responseUser = { username: user.username, name: user.name, favorites: user.favorites, cart: user.cart, orders: user.orders };
   res.json({ success: true, user: responseUser });
 });
 
-app.get('/api/user-orders', (req, res) => {
+app.get('/api/user-orders', async (req, res) => {
   const username = req.query.username;
   if (!username) return res.status(400).json({ success: false, message: 'Username required' });
-  const user = findUserByUsername(username);
+  const userData = await loadUsers();
+  const user = findUserByUsernameIn(userData.users, username);
   if (!user) return res.status(404).json({ success: false, message: 'User not found' });
   res.json({ success: true, orders: user.orders || [] });
 });
 
-app.post('/api/user-favorite', (req, res) => {
+app.post('/api/user-favorite', async (req, res) => {
   const { username, productName, action } = req.body || {};
   if (!username || !productName || !action) {
     return res.status(400).json({ success: false, message: 'Username, productName, and action required' });
   }
-  const user = findUserByUsername(username);
+  const userData = await loadUsers();
+  const user = findUserByUsernameIn(userData.users, username);
   if (!user) return res.status(404).json({ success: false, message: 'User not found' });
+
+  user.favorites = user.favorites || [];
   if (action === 'add') {
     if (!user.favorites.includes(productName)) user.favorites.push(productName);
   } else if (action === 'remove') {
@@ -352,20 +305,23 @@ app.post('/api/user-favorite', (req, res) => {
   } else {
     return res.status(400).json({ success: false, message: 'Unknown action' });
   }
-  saveUsersToFile(userData);
+  await saveUsers(userData);
   res.json({ success: true, favorites: user.favorites });
 });
 
-app.post('/api/user-cart', (req, res) => {
+app.post('/api/user-cart', async (req, res) => {
   const { username, productName, quantity, action } = req.body || {};
   if (!username || !action) {
     return res.status(400).json({ success: false, message: 'Username and action required' });
   }
-  const user = findUserByUsername(username);
+  const userData = await loadUsers();
+  const user = findUserByUsernameIn(userData.users, username);
   if (!user) return res.status(404).json({ success: false, message: 'User not found' });
 
-  const catalog = loadCatalogFromFile();
+  const catalog = await loadCatalog();
   const catalogProduct = productName ? findProductInCatalog(catalog, productName) : null;
+
+  user.cart = user.cart || [];
 
   if (action === 'add') {
     if (!productName) return res.status(400).json({ success: false, message: 'Product name required to add to cart' });
@@ -386,7 +342,6 @@ app.post('/api/user-cart', (req, res) => {
     if (!productName) return res.status(400).json({ success: false, message: 'Product name required to remove from cart' });
     user.cart = user.cart.filter((item) => item.productName !== productName);
   } else if (action === 'update') {
-    // Set exact quantity for a cart item; remove if quantity <= 0
     if (!productName) return res.status(400).json({ success: false, message: 'Product name required to update cart' });
     const existing = user.cart.find((item) => item.productName === productName);
     const q = Number(quantity || 0);
@@ -407,29 +362,31 @@ app.post('/api/user-cart', (req, res) => {
   } else {
     return res.status(400).json({ success: false, message: 'Unknown action' });
   }
-  saveUsersToFile(userData);
+  await saveUsers(userData);
   res.json({ success: true, cart: user.cart });
 });
 
-app.post('/api/save-order', (req, res) => {
+app.post('/api/save-order', async (req, res) => {
   const { username, order } = req.body || {};
   if (!username || !order) {
     return res.status(400).json({ success: false, message: 'Username and order required' });
   }
-  const user = findUserByUsername(username);
+  const userData = await loadUsers();
+  const user = findUserByUsernameIn(userData.users, username);
   if (!user) return res.status(404).json({ success: false, message: 'User not found' });
   user.orders = user.orders || [];
   user.orders.push(order);
-  saveUsersToFile(userData);
+  await saveUsers(userData);
   res.json({ success: true, orders: user.orders });
 });
 
-app.post('/api/user-rate', (req, res) => {
+app.post('/api/user-rate', async (req, res) => {
   const { username, transactionId, rating } = req.body || {};
   if (!username || !transactionId || rating == null) {
     return res.status(400).json({ success: false, message: 'Username, transactionId and rating required' });
   }
-  const user = findUserByUsername(username);
+  const userData = await loadUsers();
+  const user = findUserByUsernameIn(userData.users, username);
   if (!user) return res.status(404).json({ success: false, message: 'User not found' });
   user.orders = user.orders || [];
   const order = user.orders.find((item) => item.transactionId === transactionId);
@@ -437,13 +394,12 @@ app.post('/api/user-rate', (req, res) => {
     return res.status(404).json({ success: false, message: 'Order not found' });
   }
   order.rating = Number(rating);
-  saveUsersToFile(userData);
+  await saveUsers(userData);
   res.json({ success: true, orders: user.orders });
 });
 
 // ============= REAL UPI PAYMENT ENDPOINTS =============
 
-// Generate UPI QR Code & Link
 app.post('/api/create-upi-order', async (req, res) => {
   try {
     const { amount, productName, username, quantity } = req.body;
@@ -456,7 +412,9 @@ app.post('/api/create-upi-order', async (req, res) => {
     const transactionId = `TXN${Date.now()}`;
     const expectedReferenceId = `${transactionId}`;
     const createdAt = new Date().toISOString();
-    const pendingRecord = {
+
+    const pendingMap = await loadPending();
+    pendingMap[transactionId] = {
       transactionId,
       expectedReferenceId,
       amount,
@@ -466,11 +424,11 @@ app.post('/api/create-upi-order', async (req, res) => {
       username: username || null,
       quantity: orderQuantity
     };
-
-    pendingTransactions.set(transactionId, pendingRecord);
+    await savePending(pendingMap);
 
     if (username) {
-      const user = findUserByUsername(username);
+      const userData = await loadUsers();
+      const user = findUserByUsernameIn(userData.users, username);
       if (user) {
         user.orders = user.orders || [];
         const existingOrder = user.orders.find((o) => o.transactionId === transactionId);
@@ -484,25 +442,18 @@ app.post('/api/create-upi-order', async (req, res) => {
             status: 'PENDING',
             createdAt
           });
-          saveUsersToFile(userData);
+          await saveUsers(userData);
         }
       }
     }
 
-    // Create UPI string for QR code
-    // Use the transactionId as the merchant reference so the bank app can return it
     const upiString = `upi://pay?pa=${UPI_CONFIG.upiId}&pn=${encodeURIComponent(UPI_CONFIG.merchantName)}&am=${amount}&tr=${transactionId}&tn=${encodeURIComponent(`Payment for ${productName} - ${transactionId}`)}`;
-    
-    // Generate QR code as data URL
     const qrCode = await QRCode.toDataURL(upiString);
-    
-    // Generate UPI link for direct click
-    const upiLink = upiString;
 
     res.json({
       transactionId: transactionId,
       qrCode: qrCode,
-      upiLink: upiLink,
+      upiLink: upiString,
       upiId: UPI_CONFIG.upiId,
       merchantName: UPI_CONFIG.merchantName,
       amount: amount,
@@ -514,22 +465,21 @@ app.post('/api/create-upi-order', async (req, res) => {
   }
 });
 
-// Create PhonePe order (sandbox/simple redirect helper)
 app.post('/api/create-phonepe-order', async (req, res) => {
   try {
     const { amount, productName } = req.body || {};
     if (!amount || amount < 1) return res.status(400).json({ error: 'Invalid amount' });
 
     const merchantOrderId = `PP${Date.now()}`;
-    pendingTransactions.set(merchantOrderId, {
+    const pendingMap = await loadPending();
+    pendingMap[merchantOrderId] = {
       transactionId: merchantOrderId,
       amount,
       productName,
       status: 'PENDING',
       createdAt: new Date().toISOString()
-    });
-    // Persist pending transactions so webhooks are accepted after restarts
-    savePendingToFile();
+    };
+    await savePending(pendingMap);
 
     const PHONEPE_BASE = process.env.PHONEPE_BASE || 'https://sandbox.phonepe.com/pay';
     const PHONEPE_MERCHANT_ID = process.env.PHONEPE_MERCHANT_ID || 'MERCHANT_ID';
@@ -543,16 +493,11 @@ app.post('/api/create-phonepe-order', async (req, res) => {
   }
 });
 
-// PhonePe webhook endpoint — parse raw bytes so HMAC matches provider signature
-// PhonePe webhook endpoint — compute HMAC on the exact raw bytes provider sent.
-// We capture the raw bytes in `req.rawBody` using the `verify` hook on json parser.
-app.post('/api/phonepe-webhook', (req, res) => {
+app.post('/api/phonepe-webhook', async (req, res) => {
   try {
     const sigHeader = req.headers['x-phonepe-signature'] || req.headers['x-signature'] || '';
     const secret = process.env.PHONEPE_WEBHOOK_SECRET || 'phonepe-webhook-secret';
 
-    // Prefer the raw buffer captured by the json verify hook; fall back to
-    // stringifying the parsed body only as a last resort (less secure).
     const bodyBuffer = req.rawBody !== undefined ? req.rawBody : req.body;
     const bodyString = Buffer.isBuffer(bodyBuffer)
       ? bodyBuffer.toString('utf8')
@@ -568,22 +513,16 @@ app.post('/api/phonepe-webhook', (req, res) => {
     try {
       payload = JSON.parse(bodyString);
     } catch (parseErr) {
-      console.error('PhonePe webhook JSON parse error:', parseErr, 'bodyString:', bodyString);
       return res.status(400).send('Invalid JSON');
     }
-    // expected payload must contain merchantOrderId, status, amount
+
     const merchantOrderId = payload.merchantOrderId || payload.transactionId || (payload.data && payload.data.merchantOrderId);
     const status = payload.status || (payload.data && payload.data.status) || '';
     const amount = Number(payload.amount || (payload.data && payload.data.amount) || 0);
 
-    console.log('PhonePe webhook received', { merchantOrderId, status, amount });
-
-    let pending = pendingTransactions.get(merchantOrderId);
+    const pendingMap = await loadPending();
+    let pending = pendingMap[merchantOrderId];
     if (!pending) {
-      console.info('Webhook received for unknown order — creating record', merchantOrderId);
-      // If provider notifies us about an order we never created (possible
-      // in sandbox/manual tests), create a minimal record so the client can
-      // poll for its status. We'll fill with available payload fields.
       pending = {
         transactionId: merchantOrderId,
         amount: amount || 0,
@@ -591,15 +530,13 @@ app.post('/api/phonepe-webhook', (req, res) => {
         status: 'PENDING',
         createdAt: new Date().toISOString()
       };
-      pendingTransactions.set(merchantOrderId, pending);
-      savePendingToFile();
+      pendingMap[merchantOrderId] = pending;
     }
 
     if (status === 'SUCCESS' || status === 'COMPLETED' || status === 'CAPTURED') {
       if (pending.amount !== amount) {
-        console.warn('Webhook amount mismatch', { expected: pending.amount, got: amount });
-        // still mark as investigated but do not complete automatically
         pending.status = 'FAILED_AMOUNT_MISMATCH';
+        await savePending(pendingMap);
         return res.status(400).send('Amount mismatch');
       }
 
@@ -607,12 +544,11 @@ app.post('/api/phonepe-webhook', (req, res) => {
       pending.referenceId = payload.referenceId || payload.transactionReference || (payload.data && payload.data.referenceId) || '';
       pending.verifiedAt = new Date().toISOString();
 
-      // persist updated pending state
-      savePendingToFile();
+      await savePending(pendingMap);
 
-      // If username present in pending (set by client when order created), save to user orders
       if (pending.username) {
-        const user = findUserByUsername(pending.username);
+        const userData = await loadUsers();
+        const user = findUserByUsernameIn(userData.users, pending.username);
         if (user) {
           user.orders = user.orders || [];
           user.orders.push({
@@ -624,16 +560,15 @@ app.post('/api/phonepe-webhook', (req, res) => {
             status: 'COMPLETED',
             createdAt: pending.verifiedAt
           });
-          saveUsersToFile(userData);
+          await saveUsers(userData);
         }
       }
 
       return res.json({ success: true });
     }
 
-    // other statuses - mark pending accordingly and persist
     pending.status = status || 'PENDING';
-    savePendingToFile();
+    await savePending(pendingMap);
     return res.json({ success: true });
   } catch (err) {
     console.error('PhonePe webhook processing error:', err);
@@ -641,16 +576,15 @@ app.post('/api/phonepe-webhook', (req, res) => {
   }
 });
 
-// Pollable status endpoint for client to check order state
-app.get('/api/phonepe-order-status', (req, res) => {
+app.get('/api/phonepe-order-status', async (req, res) => {
   const orderId = req.query.orderId;
   if (!orderId) return res.status(400).json({ success: false, message: 'orderId required' });
-  const pending = pendingTransactions.get(orderId);
+  const pendingMap = await loadPending();
+  const pending = pendingMap[orderId];
   if (!pending) return res.status(404).json({ success: false, message: 'Order not found' });
   res.json({ success: true, orderId, status: pending.status, amount: pending.amount, verifiedAt: pending.verifiedAt || null });
 });
 
-// Verify Real UPI Payment (Manual verification)
 app.post('/api/verify-upi-payment', async (req, res) => {
   try {
     const { transactionId, referenceId, amount, productName, username } = req.body;
@@ -662,7 +596,8 @@ app.post('/api/verify-upi-payment', async (req, res) => {
       });
     }
 
-    const pending = pendingTransactions.get(transactionId);
+    const pendingMap = await loadPending();
+    const pending = pendingMap[transactionId];
     if (!pending) {
       return res.status(400).json({
         success: false,
@@ -702,11 +637,7 @@ app.post('/api/verify-upi-payment', async (req, res) => {
       });
     }
 
-    // Log attempt for easier debugging
-    console.log('Verifying payment:', { transactionId, cleanedReferenceId, amount, productName, username });
-
-    // Ensure the reference hasn't been used for a completed transaction in pending store
-    const referenceAlreadyUsedInPending = [...pendingTransactions.values()].some((tx) =>
+    const referenceAlreadyUsedInPending = Object.values(pendingMap).some((tx) =>
       tx.status === 'COMPLETED' && tx.referenceId === cleanedReferenceId
     );
 
@@ -717,7 +648,7 @@ app.post('/api/verify-upi-payment', async (req, res) => {
       });
     }
 
-    // Ensure the reference hasn't been used in any saved user orders
+    const userData = await loadUsers();
     const referenceAlreadyUsedInUsers = userData.users.some((u) => (u.orders || []).some((o) => (o.referenceId || '').replace(/\s+/g, '').toUpperCase() === cleanedReferenceId));
 
     if (referenceAlreadyUsedInUsers) {
@@ -727,17 +658,14 @@ app.post('/api/verify-upi-payment', async (req, res) => {
       });
     }
 
-    // Bind the provided reference to this pending transaction and mark as awaiting manual verification
     pending.status = 'AWAITING_VERIFICATION';
     pending.referenceId = cleanedReferenceId;
     pending.submittedAt = new Date().toISOString();
 
-    // persist pending state so restart won't lose submitted verifications
-    savePendingToFile();
+    await savePending(pendingMap);
 
-    // If username provided, update the user's original pending order record or add a new one
     if (username) {
-      const user = findUserByUsername(username);
+      const user = findUserByUsernameIn(userData.users, username);
       if (user) {
         user.orders = user.orders || [];
         const existing = user.orders.find((o) => o.transactionId === transactionId);
@@ -759,11 +687,10 @@ app.post('/api/verify-upi-payment', async (req, res) => {
             createdAt: pending.submittedAt
           });
         }
-        saveUsersToFile(userData);
+        await saveUsers(userData);
       }
     }
 
-    // Return pending response so client shows the verification-in-progress message
     return res.json({
       success: true,
       pending: true,
