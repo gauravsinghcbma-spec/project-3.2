@@ -139,6 +139,47 @@ function findUserByCredentials(username, password) {
   return userData.users.find((user) => user.username === username && user.password === password);
 }
 
+function enrichCatalogWithRatings(catalog) {
+  const ratingBuckets = new Map();
+
+  for (const user of userData.users || []) {
+    for (const order of user.orders || []) {
+      if (!order?.productName || !Number.isFinite(Number(order.rating))) continue;
+      const productName = order.productName;
+      const current = ratingBuckets.get(productName) || { total: 0, count: 0 };
+      current.total += Number(order.rating);
+      current.count += 1;
+      ratingBuckets.set(productName, current);
+    }
+  }
+
+  const catalogClone = JSON.parse(JSON.stringify(catalog || {}));
+  for (const category of Object.values(catalogClone)) {
+    if (!Array.isArray(category?.products)) continue;
+    for (const product of category.products) {
+      const ratingData = ratingBuckets.get(product.name);
+      if (!ratingData || ratingData.count === 0) {
+        product.rating = 0;
+        product.ratingCount = 0;
+        continue;
+      }
+      product.rating = Number((ratingData.total / ratingData.count).toFixed(1));
+      product.ratingCount = ratingData.count;
+    }
+  }
+
+  return catalogClone;
+}
+
+function findProductInCatalog(catalog, productName) {
+  if (!catalog || !productName) return null;
+  for (const category of Object.values(catalog)) {
+    const product = category?.products?.find((item) => item.name === productName);
+    if (product) return product;
+  }
+  return null;
+}
+
 async function getCatalogFromDb() {
   let client;
   try {
@@ -200,13 +241,13 @@ app.get('/api/catalog', async (req, res) => {
     if (fs.existsSync(dataPath)) {
       try {
         const file = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
-        return res.json(file);
+        return res.json(enrichCatalogWithRatings(file));
       } catch (e) {
         console.warn('Could not parse data.json, falling back to DB:', e.message);
       }
     }
     const catalog = await getCatalogFromDb();
-    res.json(catalog);
+    res.json(enrichCatalogWithRatings(catalog));
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Failed to read catalog' });
@@ -322,11 +363,25 @@ app.post('/api/user-cart', (req, res) => {
   }
   const user = findUserByUsername(username);
   if (!user) return res.status(404).json({ success: false, message: 'User not found' });
+
+  const catalog = loadCatalogFromFile();
+  const catalogProduct = productName ? findProductInCatalog(catalog, productName) : null;
+
   if (action === 'add') {
     if (!productName) return res.status(400).json({ success: false, message: 'Product name required to add to cart' });
+    if (catalogProduct && Number(catalogProduct.quantity || 0) <= 0) {
+      return res.status(400).json({ success: false, message: 'This product is currently updating. We will contact you later when it is available.' });
+    }
     const existing = user.cart.find((item) => item.productName === productName);
-    if (existing) existing.quantity = Number(existing.quantity || 1) + Number(quantity || 1);
-    else user.cart.push({ productName, quantity: Number(quantity || 1) });
+    const requestedQty = Number(quantity || 1);
+    if (catalogProduct) {
+      const totalQty = (Number(existing?.quantity || 0) + requestedQty);
+      if (totalQty > Number(catalogProduct.quantity || 0)) {
+        return res.status(400).json({ success: false, message: `Only ${catalogProduct.quantity} item(s) available right now.` });
+      }
+    }
+    if (existing) existing.quantity = Number(existing.quantity || 1) + requestedQty;
+    else user.cart.push({ productName, quantity: requestedQty });
   } else if (action === 'remove') {
     if (!productName) return res.status(400).json({ success: false, message: 'Product name required to remove from cart' });
     user.cart = user.cart.filter((item) => item.productName !== productName);
@@ -335,6 +390,9 @@ app.post('/api/user-cart', (req, res) => {
     if (!productName) return res.status(400).json({ success: false, message: 'Product name required to update cart' });
     const existing = user.cart.find((item) => item.productName === productName);
     const q = Number(quantity || 0);
+    if (catalogProduct && q > Number(catalogProduct.quantity || 0)) {
+      return res.status(400).json({ success: false, message: `Only ${catalogProduct.quantity} item(s) available right now.` });
+    }
     if (existing) {
       if (q <= 0) {
         user.cart = user.cart.filter((item) => item.productName !== productName);

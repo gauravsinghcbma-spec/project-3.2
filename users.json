@@ -52,6 +52,10 @@
         {
           "productName": "Bhagavad Gita",
           "quantity": 1
+        },
+        {
+          "productName": "Ear Plug",
+          "quantity": 2
         }
       ],
       "orders": [
@@ -62,7 +66,8 @@
           "productName": "Ear Plug",
           "quantity": 1,
           "status": "COMPLETED",
-          "createdAt": "2026-07-21T11:36:25.689Z"
+          "createdAt": "2026-07-21T11:36:25.689Z",
+          "rating": 4
         },
         {
           "transactionId": "TXN1784633910475",
@@ -71,7 +76,8 @@
           "productName": "Ear Plug",
           "quantity": 1,
           "status": "COMPLETED",
-          "createdAt": "2026-07-21T11:39:50.016Z"
+          "createdAt": "2026-07-21T11:39:50.016Z",
+          "rating": 5
         },
         {
           "transactionId": "TXN1784634160890",
@@ -80,7 +86,8 @@
           "productName": "Ear Plug",
           "quantity": 1,
           "status": "COMPLETED",
-          "createdAt": "2026-07-21T11:43:34.432Z"
+          "createdAt": "2026-07-21T11:43:34.432Z",
+          "rating": 5
         },
         {
           "transactionId": "TXN1784634249422",
@@ -89,7 +96,8 @@
           "productName": "Ear Plug 2.0",
           "quantity": 1,
           "status": "COMPLETED",
-          "createdAt": "2026-07-21T11:44:52.272Z"
+          "createdAt": "2026-07-21T11:44:52.272Z",
+          "rating": 5
         },
         {
           "transactionId": "TXN1784634341511",
@@ -98,7 +106,8 @@
           "productName": "Bhagavad Gita",
           "quantity": 1,
           "status": "COMPLETED",
-          "createdAt": "2026-07-21T11:45:48.263Z"
+          "createdAt": "2026-07-21T11:45:48.263Z",
+          "rating": 5
         },
         {
           "transactionId": "TXN1784634800152",
@@ -107,7 +116,8 @@
           "productName": "Bottle",
           "quantity": 1,
           "status": "COMPLETED",
-          "createdAt": "2026-07-21T11:53:41.557Z"
+          "createdAt": "2026-07-21T11:53:41.557Z",
+          "rating": 5
         },
         {
           "transactionId": "TXN1784635126694",
@@ -116,7 +126,8 @@
           "productName": "Kumkum Gopi Chandan",
           "quantity": 1,
           "status": "COMPLETED",
-          "createdAt": "2026-07-21T11:59:13.934Z"
+          "createdAt": "2026-07-21T11:59:13.934Z",
+          "rating": 5
         },
         {
           "transactionId": "TXN1784645310511",
@@ -125,7 +136,8 @@
           "productName": "Ear Plug 2.0",
           "quantity": 1,
           "status": "PENDING_VERIFICATION",
-          "createdAt": "2026-07-21T14:51:17.629Z"
+          "createdAt": "2026-07-21T14:51:17.629Z",
+          "rating": 3
         },
         {
           "transactionId": "TXN1784646177284",
@@ -134,7 +146,8 @@
           "productName": "Bottle",
           "quantity": 1,
           "status": "PENDING_VERIFICATION",
-          "createdAt": "2026-07-21T15:03:11.268Z"
+          "createdAt": "2026-07-21T15:03:11.268Z",
+          "rating": 3
         },
         {
           "transactionId": "TXN1784646705676",
@@ -143,7 +156,8 @@
           "productName": "Ear Plug 2.0",
           "quantity": 1,
           "status": "PENDING_VERIFICATION",
-          "createdAt": "2026-07-21T15:12:30.689Z"
+          "createdAt": "2026-07-21T15:12:30.689Z",
+          "rating": 3
         },
         {
           "transactionId": "TXN1784646757506",
@@ -152,9 +166,57 @@
           "productName": "Ear Plug 2.0",
           "quantity": 1,
           "status": "PENDING_VERIFICATION",
-          "createdAt": "2026-07-21T15:12:52.257Z"
+          "createdAt": "2026-07-21T15:12:52.257Z",
+          "rating": 4
+        },
+        {
+          "transactionId": "TXN1784699174659",
+          "referenceId": "",
+          "amount": 20,
+          "productName": "Ear Plug",
+          "quantity": 1,
+          "status": "PENDING",
+          "createdAt": "2026-07-22T05:46:14.659Z",
+          "rating": 4
+        },
+        {
+          "transactionId": "TXN1784700804103",
+          "referenceId": "",
+          "amount": 20,
+          "productName": "Ear Plug",
+          "quantity": 1,
+          "status": "PENDING",
+          "createdAt": "2026-07-22T06:13:24.103Z",
+          "rating": 1
         }
       ]
+    },
+    {
+      "username": "gaurav",
+      "password": "87654321",
+      "name": "Gaurav",
+      "favorites": [],
+      "cart": [],
+      "orders": [
+        {
+          "transactionId": "TXN1784698176867",
+          "referenceId": "",
+          "amount": 20,
+          "productName": "Ear Plug",
+          "quantity": 1,
+          "status": "PENDING",
+          "createdAt": "2026-07-22T05:29:36.867Z",
+          "rating": 5
+        }
+      ]
+    },
+    {
+      "username": "gaurav singh",
+      "password": "12345678",
+      "name": "Gaurav singh",
+      "favorites": [],
+      "cart": [],
+      "orders": []
     }
   ]
 }

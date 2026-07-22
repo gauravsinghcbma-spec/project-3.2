@@ -431,6 +431,14 @@ function getProductPrimaryImage(product) {
     return getProductImages(product)[0] || 'SP2.jpeg';
 }
 
+function isProductAvailable(product) {
+    return Number(product?.quantity || 0) > 0;
+}
+
+function getProductAvailabilityText(product) {
+    return isProductAvailable(product) ? 'Available' : 'Updating';
+}
+
 function renderStars(rating) {
     const clampRating = Math.max(0, Math.min(5, Number(rating) || 0));
     const fullStars = Math.floor(clampRating);
@@ -501,7 +509,17 @@ async function addToCart(product, quantity = 1) {
         showToast('Login to add items to cart', true);
         return;
     }
-    await updateCartOnServer(product.name, quantity, 'add');
+    if (!isProductAvailable(product)) {
+        showToast('This product is currently updating. We will contact you later when it is available.', true);
+        return;
+    }
+    const requestedQty = Number(quantity || 1);
+    const availableQty = Number(product.quantity || 0);
+    if (requestedQty > availableQty) {
+        showToast(`Only ${availableQty} item(s) available right now.`, true);
+        return;
+    }
+    await updateCartOnServer(product.name, requestedQty, 'add');
     renderCategoryBoxes();
 }
 
@@ -606,6 +624,44 @@ function openCartModal() {
         openCartModal();
     });
     document.getElementById('close-modal').addEventListener('click', closeModal);
+}
+
+async function rateOrderInServer(transactionId, rating) {
+    if (!currentUser) {
+        showToast('Please login to rate this product', true);
+        return false;
+    }
+    if (!transactionId) {
+        showToast('Order reference missing', true);
+        return false;
+    }
+
+    try {
+        const response = await fetch('/api/user-rate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                username: currentUser.username,
+                transactionId,
+                rating: Number(rating)
+            })
+        });
+
+        const result = await response.json();
+        if (!result.success) {
+            showToast(result.message || 'Could not save rating', true);
+            return false;
+        }
+
+        currentUser.orders = result.orders || [];
+        userOrders = currentUser.orders;
+        showToast('Rating saved successfully');
+        return true;
+    } catch (error) {
+        console.error('Rate order failed:', error);
+        showToast('Unable to save rating right now', true);
+        return false;
+    }
 }
 
 function openOrdersModal() {
@@ -819,12 +875,17 @@ function showCategory(id) {
             </div>
             ` : '';
 
+        const reviewText = Number(product.rating || 0) > 0
+            ? `${renderStars(product.rating)} <span class="small">(${product.ratingCount || 0})</span>`
+            : '<span class="small">No ratings yet</span>';
+
         card.innerHTML = `
             ${adminHtml}
             <img src="${getProductPrimaryImage(product)}" alt="${product.name}" onerror="this.onerror=null;this.src='SP2.jpeg'" />
             <strong>${product.name}</strong>
             <p>${product.description}</p>
-            <p class="small">Category: ${product.categoryName} | Qty: ${product.quantity || 'N/A'}</p>
+            <p class="small">Category: ${product.categoryName} | Qty: ${product.quantity || 'N/A'} | Status: ${getProductAvailabilityText(product)}</p>
+            <p class="small">Rating: ${reviewText}</p>
             <div class="price">₹${product.price}</div>
             <div class="product-actions">
                 <button class="product-action-btn add-to-cart">Add to Cart</button>
@@ -869,6 +930,15 @@ function openProductModal(product) {
     if (isAdmin) return;
 
     const images = getProductImages(product);
+    const isAvailable = isProductAvailable(product);
+    const maxQuantity = Math.max(Number(product.quantity || 0), 1);
+    const availabilityNotice = !isAvailable ? `
+        <p class="small" style="color:#d32f2f; font-weight:bold; margin-top:10px;">Product is currently updating. We will contact you later when it is available.</p>
+    ` : '';
+    const reviewSummary = Number(product.rating || 0) > 0
+        ? `${renderStars(product.rating)} <span class="small">(${product.ratingCount || 0} ratings)</span>`
+        : '<span class="small">No ratings yet</span>';
+
     modalCard.innerHTML = `
         <h2>${product.name}</h2>
         <div class="product-gallery">
@@ -883,14 +953,16 @@ function openProductModal(product) {
             <button id="zoom-out" class="secondary">Zoom −</button>
         </div>
         <p id="gallery-desc">${product.description}</p>
-        <p class="small">Available Quantity: ${product.quantity || 'N/A'}</p>
+        <p class="small">Available Quantity: ${product.quantity || 'N/A'} | Status: ${getProductAvailabilityText(product)}</p>
+        <p class="small">Average Rating: ${reviewSummary}</p>
+        ${availabilityNotice}
         <div class="row">
             <strong>Price: ₹${product.price}</strong>
-            <input type="number" id="quantity" min="1" max="${product.quantity || 20}" value="1" />
+            <input type="number" id="quantity" min="1" max="${maxQuantity}" value="1" ${isAvailable ? '' : 'disabled'} />
         </div>
         <div class="row">
-            <button id="place-order">Order Now</button>
-            <button id="add-to-cart">Add to Cart</button>
+            <button id="place-order" ${isAvailable ? '' : 'disabled'}>Order Now</button>
+            <button id="add-to-cart" ${isAvailable ? '' : 'disabled'}>Add to Cart</button>
             <button id="close-modal" class="secondary">Close</button>
         </div>
     `;
@@ -923,7 +995,15 @@ function openProductModal(product) {
     });
 
     document.getElementById('place-order').addEventListener('click', () => {
+        if (!isProductAvailable(product)) {
+            showToast('This product is currently updating. We will contact you later when it is available.', true);
+            return;
+        }
         const quantity = Number(document.getElementById('quantity').value || 1);
+        if (quantity > Number(product.quantity || 0)) {
+            showToast(`Only ${product.quantity} item(s) available right now.`, true);
+            return;
+        }
         pendingOrder = { product, quantity };
         openPaymentModal(product, quantity);
     });
@@ -931,6 +1011,10 @@ function openProductModal(product) {
         const quantity = Number(document.getElementById('quantity').value || 1);
         if (!currentUser) {
             showToast('Please login to add items to cart', true);
+            return;
+        }
+        if (!isProductAvailable(product)) {
+            showToast('This product is currently updating. We will contact you later when it is available.', true);
             return;
         }
         await addToCart(product, quantity);
