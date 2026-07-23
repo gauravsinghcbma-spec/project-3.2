@@ -1628,6 +1628,7 @@ async function persistCatalog() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(categories)
         });
+        
         if (!response.ok) {
             showToast('Failed to persist catalog on server', true);
             return null;
