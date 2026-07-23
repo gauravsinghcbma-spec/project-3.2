@@ -771,8 +771,6 @@ function renderCategoryBoxes() {
         box.id = category.id;
         if (category.id === selectedCategoryId) box.classList.add('selected');
 
-        // Only edit button on the outside, squared off by CSS
-        // Find this section in renderCategoryBoxes and replace it with:
         let adminHtml = isAdmin ? `
     <div class="admin-actions">
         <button onclick="openCategoryForm(${category.id}, event)">+</button>
@@ -867,8 +865,6 @@ function showCategory(id) {
         const card = document.createElement('div');
         card.className = 'types-of-product';
 
-        // Only edit button on the card, square.
-        // Find this section in showCategory and replace it with:
         let adminHtml = isAdmin ? `
             <div class="admin-actions">
                 <button onclick="openProductForm(${product.categoryId}, ${product.index}, event)">+</button>
@@ -893,7 +889,6 @@ function showCategory(id) {
             </div>
         `;
 
-        // Clicking the whole card opens standard flow based on user role
         if (isAdmin) {
             card.addEventListener('click', () => openProductForm(product.categoryId, product.index));
         } else {
@@ -985,7 +980,6 @@ function openProductModal(product) {
     document.getElementById('zoom-in').addEventListener('click', (e) => { e.stopPropagation(); scale = Math.min(3, scale + 0.25); galleryImg.style.transform = `scale(${scale})`; });
     document.getElementById('zoom-out').addEventListener('click', (e) => { e.stopPropagation(); scale = Math.max(1, scale - 0.25); galleryImg.style.transform = `scale(${scale})`; });
 
-    // Touch / swipe support
     let touchStartX = 0;
     galleryImg.addEventListener('touchstart', (ev) => { touchStartX = ev.touches[0].clientX; });
     galleryImg.addEventListener('touchend', (ev) => {
@@ -1048,9 +1042,6 @@ function openPaymentModal(product, quantity) {
             <div id="qr-code-container" style="background: white; padding: 10px; border-radius: 8px; display: inline-block; border: 1px solid #ddd;">
                 <img id="qr-code" src="" alt="UPI QR Code" style="width: 200px; height: 200px;">
             </div>
-            <div style="margin-top:10px;">
-                <!-- PhonePe option removed: use UPI QR or link and verify by reference -->
-            </div>
             <p style="margin: 10px 0; color: #666; font-size: 0.85em;">UPI ID: <strong>g47128163@oksbi</strong> (pay only to this UPI ID)</p>
         </div>
 
@@ -1070,16 +1061,11 @@ function openPaymentModal(product, quantity) {
         </div>
     `;
 
-    // Load UPI QR Code
     loadUPIQRCode(product, quantity, totalAmount);
 
     document.getElementById('verify-payment').addEventListener('click', () => verifyUPIPayment(product, quantity, totalAmount));
     document.getElementById('close-modal').addEventListener('click', closeModal);
-    // PhonePe removed: no provider redirect button
 }
-
-// PhonePe integration removed. Server-side webhooks remain, but client will
-// use UPI QR + manual verification flow only.
 
 async function loadUPIQRCode(product, quantity, totalAmount) {
     if (!product || !window.currentOrder) {
@@ -1106,20 +1092,16 @@ async function loadUPIQRCode(product, quantity, totalAmount) {
         if (!response.ok) throw new Error('Failed to generate QR code');
         const data = await response.json();
 
-        // Store transaction ID for verification
         window.currentTransaction = data;
 
-        // Display transaction ID prominently so user can cross-check in their bank app
         const txDisplay = document.getElementById('transaction-id-display');
         if (txDisplay) txDisplay.textContent = `Transaction ID: ${data.transactionId} — use this when checking your bank/UPI app`;
 
         if (verifyBtn) verifyBtn.disabled = false;
 
-        // Display QR code
         document.getElementById('qr-code').src = data.qrCode;
         document.getElementById('qr-code').style.cursor = 'pointer';
         
-        // Make QR code clickable for direct UPI link
         document.getElementById('qr-code').addEventListener('click', () => {
             window.location.href = data.upiLink;
         });
@@ -1181,13 +1163,11 @@ async function verifyUPIPayment(product, quantity, totalAmount) {
         if (closeBtn) closeBtn.disabled = false;
 
         if (verifyData.pending) {
-            // Show message that verification is in progress and owner will contact later
             showPendingVerificationModal(product, quantity, totalAmount, referenceId, window.currentTransaction.transactionId);
             return;
         }
 
         if (verifyData.success) {
-            // Payment verified! Now process order
             pendingOrder = { product, quantity, source: pendingOrder?.source || 'direct' };
             if (currentUser && pendingOrder.source === 'cart') {
                 await removeFromCart(product.name);
@@ -1209,7 +1189,6 @@ async function verifyUPIPayment(product, quantity, totalAmount) {
             const success = await processOrderAndDecreaseQuantity();
             if (success) {
                     showUPIPaymentSuccessModal(product, quantity, totalAmount, referenceId, window.currentTransaction.transactionId);
-                    // Also show diagonal success box with quick send options
                     if (diagBox) {
                         const message = `Payment successful. Product: ${product.name} | Amount: ₹${totalAmount} | Reference: ${referenceId} | Transaction: ${window.currentTransaction.transactionId}`;
                         diagBox.classList.remove('error-state');
@@ -1394,7 +1373,6 @@ async function processOrderAndDecreaseQuantity() {
             const product = category.products[i];
             if (product.name === pendingOrder.product.name && 
                 product.price === pendingOrder.product.price) {
-                // Found the product - decrease quantity
                 const newQuantity = product.quantity - pendingOrder.quantity;
                 if (newQuantity >= 0) {
                     categories[categoryId].products[i].quantity = newQuantity;
@@ -1413,6 +1391,8 @@ async function processOrderAndDecreaseQuantity() {
         // Persist the updated catalog to database
         await persistCatalog();
         showToast('Order confirmed! Quantity updated.');
+        // Re-fetch catalog to automatically trigger UI update on the website page
+        await fetchCatalog();
         return true;
     } else {
         showToast('Could not find product to update quantity', true);
@@ -1462,7 +1442,7 @@ function openCategoryForm(categoryId = null, event = null) {
     `;
     overlay.classList.remove('hidden');
 
-document.getElementById('save-cat').addEventListener('click', async () => {
+    document.getElementById('save-cat').addEventListener('click', async () => {
             const newName = document.getElementById('cat-name').value;
             const newImg = document.getElementById('cat-img').value;
             const newDesc = document.getElementById('cat-desc').value;
@@ -1573,13 +1553,11 @@ function openProductForm(categoryId, productIndex = null, event = null) {
             showCategory(categoryId);
         };
 
-        // Collect images from textarea (one per line)
         if (imagesField && imagesField.trim()) {
             const lines = imagesField.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
             updatedProd.images = updatedProd.images.concat(lines);
         }
 
-        // If files selected, read all and append as data URLs
         if (fileInput && fileInput.files && fileInput.files.length > 0) {
             const readFileAsDataURL = (file) => new Promise((resolve, reject) => {
                 const reader = new FileReader();
@@ -1597,14 +1575,11 @@ function openProductForm(categoryId, productIndex = null, event = null) {
             }
         }
 
-        // Fallback: if no images but old single image exists, keep it
         if ((!updatedProd.images || updatedProd.images.length === 0) && prod.image) {
             updatedProd.images = [prod.image];
         }
 
-        // If product had a legacy single `image` property, ensure compatibility
         if (updatedProd.images && updatedProd.images.length === 1) {
-            // keep both `image` and `images` for backward compatibility
             updatedProd.image = updatedProd.images[0];
         }
 

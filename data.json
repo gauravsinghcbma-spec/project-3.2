@@ -2,24 +2,62 @@
   "1": {
     "id": 1,
     "name": "Spiritual Books",
-    "image": "images/books.jpg",
+    "image": "https://m.media-amazon.com/images/I/81gOSvJURQL._SL1500_.jpg",
     "products": [
       {
-        "name": "Bhagavad Gita",
+        "name": "Temple Song Book",
+        "price": 0,
         "images": [
-          "https://m.media-amazon.com/images/I/61gHu9NWDmL._SX679_.jpg",
-          "https://m.media-amazon.com/images/I/81ZX44ONpGL._SX679_.jpg"
+          "https://img.sanishtech.com/u/1eb0614015ae24ee97867d2a1efd8ec7.jpg",
+          "https://img.sanishtech.com/u/4d3e2e433f6728b084a702666d12e4fd.jpg",
+          "https://img.sanishtech.com/u/5d0af88dbfc59db0197b0b758cd0ce2d.jpg"
         ],
-        "description": "A timeless spiritual guide with divine teachings.",
-        "price": 250,
-        "quantity": 7
+        "quantity": 10,
+        "description": "Small pocket Size Diary "
       },
       {
-        "name": "Srimad Bhagavatam",
-        "image": "images/bhagavatam.jpg",
-        "price": 480,
-        "quantity": 5,
-        "description": "A sacred scripture rich with stories and wisdom."
+        "name": "Bhaktamala",
+        "price": 0,
+        "images": [
+          "https://img.sanishtech.com/u/54a54fc6b5bb951b827f239ee3ac4056.jpg",
+          "https://img.sanishtech.com/u/2880f69a943051660dc0ffef7b8dc508.jpg",
+          "https://img.sanishtech.com/u/cdbc5aed40e694bd96dce080168b686d.jpg",
+          "https://img.sanishtech.com/u/4ae6712995bdb95ee56d939bc7d2b4f0.jpg",
+          "https://img.sanishtech.com/u/5afb9594a53c4831ec30d4456acc584b.jpg",
+          "https://img.sanishtech.com/u/d76a1291b4a3b7ae1376d5e429e960fb.jpg"
+        ],
+        "quantity": 10,
+        "description": ""
+      },
+      {
+        "name": "Shloka Ratnavali",
+        "price": 0,
+        "images": [
+          "https://img.sanishtech.com/u/a6f39f8d6fb0aef71ec6e0aa9b0652d3.jpg",
+          "https://img.sanishtech.com/u/e3b60538030b97d9434d4a0cec2c013f.jpg",
+          "https://img.sanishtech.com/u/fd1ad45af359368ef606cce9659e2905.jpg",
+          "https://img.sanishtech.com/u/99b1c6e49a390c3c142b6270cc40a62b.jpg"
+        ],
+        "quantity": 10,
+        "description": "lEVEL -1 ( BY SP )"
+      },
+      {
+        "name": "DISCOVER YOUR SELF",
+        "price": 0,
+        "images": [],
+        "rating": 0,
+        "quantity": 10,
+        "description": "",
+        "ratingCount": 0
+      },
+      {
+        "name": "THE SPRITUAL SCIENTIST",
+        "price": 0,
+        "images": [],
+        "rating": 0,
+        "quantity": 10,
+        "description": "",
+        "ratingCount": 0
       }
     ],
     "description": "Sacred books and devotional items for spiritual growth."
@@ -27,18 +65,20 @@
   "1784609354851": {
     "id": 1784609354851,
     "name": "Bottles",
-    "image": "https://m.media-amazon.com/images/I/818EOU7f4PS._SL1500_.jpg",
+    "image": "https://m.media-amazon.com/images/I/713Ifp4hCeL._AC_UL640_FMwebp_QL65_.jpg",
     "products": [
       {
         "name": "Bottle",
+        "price": 100,
         "images": [
           "https://m.media-amazon.com/images/I/818EOU7f4PS._SL1500_.jpg",
           "https://m.media-amazon.com/images/I/81n4d4H9g+S._SX679_.jpg",
           "https://m.media-amazon.com/images/I/71AtzW2cTXS._SX679_.jpg"
         ],
+        "rating": 4,
+        "quantity": 3,
         "description": "MILTON Helix 1000 Pet Water Bottle 1 Litre Each BPA Free, Leak Proof, Office Bottle Home Kitchen Travel Bottle,  Prize Per Bottle \n\n",
-        "price": 100,
-        "quantity": 3
+        "ratingCount": 2
       }
     ],
     "description": "Bottle "
@@ -46,46 +86,200 @@
   "1784609485553": {
     "id": 1784609485553,
     "name": "Ear Plug",
-    "image": "https://m.media-amazon.com/images/I/71MMT4HYIiL._SL1500_.jpg",
+    "image": "https://m.media-amazon.com/images/I/61st57756pL._SX679_.jpg",
     "products": [
       {
         "name": "Ear Plug",
+        "price": 20,
         "images": [
           "https://m.media-amazon.com/images/I/71MMT4HYIiL._SL1500_.jpg",
           "https://m.media-amazon.com/images/I/71-ekdZGmEL._SX522_.jpg",
           "https://m.media-amazon.com/images/I/71YU0aftI+L._SX522_.jpg"
         ],
+        "rating": 4,
+        "quantity": 10,
         "description": "3M 1110 Ear Plugs Corded, Extra Soft, Reusable Earbuds Noise Cancellation, Soundproof Earplug Use For Underwater, Meditation, Study, Flight Travel,Sleeping Sound Block Up To 29 Decibel",
-        "price": 20,
-        "quantity": 10
+        "ratingCount": 6
       },
       {
         "name": "Ear Plug 2.0",
-        "images": [
-          "https://m.media-amazon.com/images/I/51CidiAFOKL._SX679_.jpg"
-        ],
-        "description": "VENUS - N-303 - Washable Reusable Earplugs - ISI Approved, Sound Reducing NRR 27 dB for Yoga, Airplane, Travel, Meditation & Industrial Use - Orange",
         "price": 50,
+        "images": [
+          "https://m.media-amazon.com/images/I/51CidiAFOKL._SX679_.jpg",
+          "https://m.media-amazon.com/images/I/51PBXf2uajL._SX679_PIbundle-10,TopRight,0,0_AA679SH20_.jpg",
+          "https://m.media-amazon.com/images/I/71JLmcpPh5L._SX679_.jpg",
+          "https://m.media-amazon.com/images/I/61R3kza1UfL._SX679_.jpg",
+          "https://m.media-amazon.com/images/I/61ddUM+TaZL._SX679_.jpg"
+        ],
         "quantity": 10,
-        "image": "https://m.media-amazon.com/images/I/51CidiAFOKL._SX679_.jpg"
+        "description": "VENUS - N-303 - Washable Reusable Earplugs - ISI Approved, Sound Reducing NRR 27 dB for Yoga, Airplane, Travel, Meditation & Industrial Use - Orange"
       }
     ],
     "description": "Ear plug "
   },
   "1784610050280": {
     "id": 1784610050280,
-    "name": "Chandan",
-    "image": "https://m.media-amazon.com/images/I/51ovxidNysL._SX679_.jpg",
+    "name": "Spritual Material ",
+    "image": "https://m.media-amazon.com/images/I/71Gp9HKz0FL._SL1500_.jpg",
     "products": [
       {
         "name": "Kumkum Gopi Chandan",
-        "images": [
-          "https://m.media-amazon.com/images/I/51ovxidNysL._SX679_.jpg"
-        ],
-        "description": "Kumkum Gopi Chandan Bati 70 Grams | Solid Chandan Bar for Forehead Tilak | Pure White Tika for Rituals",
         "price": 15,
+        "images": [
+          "https://m.media-amazon.com/images/I/51ovxidNysL._SX679_.jpg",
+          "https://m.media-amazon.com/images/I/81ubFul4NpL._SX679_.jpg",
+          "https://m.media-amazon.com/images/I/81e0orylEYL._SX679_.jpg"
+        ],
+        "rating": 5,
         "quantity": 15,
-        "image": "https://m.media-amazon.com/images/I/51ovxidNysL._SX679_.jpg"
+        "description": "Kumkum Gopi Chandan Bati 70 Grams | Solid Chandan Bar for Forehead Tilak | Pure White Tika for Rituals",
+        "ratingCount": 1
+      },
+      {
+        "name": "Chanting Beads",
+        "price": 0,
+        "images": [
+          "https://img.sanishtech.com/u/74d18e53b1e9d070feb4cfe89119fe69.jpg",
+          "https://img.sanishtech.com/u/4066d4a829df01515de4923113033ed2.jpg",
+          "https://img.sanishtech.com/u/6134fd54c61ad002b013ed854a8a341e.jpg",
+          "https://img.sanishtech.com/u/0da8a15a72cff19b2924e9f72f782b14.jpg"
+        ],
+        "rating": 0,
+        "quantity": 10,
+        "description": "big beeds mala (108)",
+        "ratingCount": 0
+      },
+      {
+        "name": "Spray Bottle",
+        "price": 0,
+        "images": [
+          "https://img.sanishtech.com/u/1859ad453acfb53603c7472539c81ce6.jpg",
+          "https://img.sanishtech.com/u/120b37fac472caa8b222ee801fef4a6c.jpg",
+          "https://img.sanishtech.com/u/996b26783d377d52c7a66df0b4cb9263.jpg"
+        ],
+        "quantity": 10,
+        "description": "small Spray bottle "
+      }
+    ],
+    "description": ""
+  },
+  "1784735590738": {
+    "id": 1784735590738,
+    "name": "CLoths",
+    "image": "https://m.media-amazon.com/images/I/61H1HxfTAUL._SY879_.jpg",
+    "products": [
+      {
+        "name": "Kurta Size S",
+        "price": 0,
+        "images": [
+          "https://img.sanishtech.com/u/a930ee3ab48e59fc8e40a0419567fb7f.jpg",
+          "https://img.sanishtech.com/u/de2179aca31e364cd6a4d5e1f59dac92.jpg"
+        ],
+        "rating": 0,
+        "quantity": 10,
+        "description": "Size --> S",
+        "ratingCount": 0
+      },
+      {
+        "name": "Kurta Size M",
+        "image": "https://img.sanishtech.com/u/de2179aca31e364cd6a4d5e1f59dac92.jpg",
+        "price": 0,
+        "images": [
+          "https://img.sanishtech.com/u/de2179aca31e364cd6a4d5e1f59dac92.jpg"
+        ],
+        "rating": 0,
+        "quantity": 0,
+        "description": "4 meter",
+        "ratingCount": 0
+      },
+      {
+        "name": "Dhoti",
+        "price": 0,
+        "images": [],
+        "rating": 0,
+        "quantity": 10,
+        "description": "",
+        "ratingCount": 0
+      },
+      {
+        "name": "Kartal Small Bag",
+        "price": 0,
+        "images": [
+          "https://img.sanishtech.com/u/e84b148f161fd4a56d2e9a2ae0722bb5.jpg",
+          "https://img.sanishtech.com/u/e083ac607791108c9270443eefb0dda5.jpg",
+          "https://img.sanishtech.com/u/0a57972ce35b31bd69a4d7bdd929c6ee.jpg",
+          "https://img.sanishtech.com/u/ab85864dacd4cd151e263dba18e5d923.jpg"
+        ],
+        "quantity": 10,
+        "description": ""
+      }
+    ],
+    "description": "Dhoti and Kurta "
+  },
+  "1784738123713": {
+    "id": 1784738123713,
+    "name": "Note Book",
+    "image": "https://m.media-amazon.com/images/I/61Gf8DNWolL._SX679_.jpg",
+    "products": [
+      {
+        "name": "Pocket Size Diary",
+        "price": 0,
+        "images": [
+          "https://img.sanishtech.com/u/1028b0bcee8aac8eaf75dc1dab112953.jpg",
+          "https://img.sanishtech.com/u/03a3391462e0ea72547b57181c88d2aa.jpg"
+        ],
+        "quantity": 0,
+        "description": ""
+      },
+      {
+        "name": "A5 size Note Pad (Narasimha Dev )",
+        "price": 0,
+        "images": [
+          "https://img.sanishtech.com/u/f50bdadc4e960cef14775a638069467b.jpg",
+          "https://img.sanishtech.com/u/14d088b3e1942179fa14f628f9138525.jpg",
+          "https://img.sanishtech.com/u/ca0cb295adf710acd41d68de7289c6b3.jpg"
+        ],
+        "quantity": 0,
+        "description": ""
+      },
+      {
+        "name": "A5 size Note Pad (Radha Madhav)",
+        "price": 0,
+        "images": [
+          "https://img.sanishtech.com/u/eebd9f4300c97fe78ff78741a82bcffa.jpg",
+          "https://img.sanishtech.com/u/fc10c2b31a8a90c22af23cec9bcb04ac.jpg",
+          "https://img.sanishtech.com/u/0996db6fa9cf37c66f413eb30158593d.jpg",
+          "https://img.sanishtech.com/u/f21a363fda0476ffb447fa049ab51aba.jpg"
+        ],
+        "quantity": 0,
+        "description": ""
+      },
+      {
+        "name": "A5 size Note Pad (CM pr)",
+        "price": 0,
+        "images": [
+          "https://img.sanishtech.com/u/6fd81f44c793acb0c758474995be1dd9.jpg",
+          "https://img.sanishtech.com/u/7adea090d4d36203c88ad69891b2de42.jpg"
+        ],
+        "quantity": 0,
+        "description": ""
+      },
+      {
+        "name": "Big Notebook (Mayapur , Radha Madhav)",
+        "price": 0,
+        "images": [
+          "https://img.sanishtech.com/u/323c5fca355e94dcd50d2d036315bf58.jpg",
+          "https://img.sanishtech.com/u/18e85cb727baeb03038c5451181715ef.jpg",
+          "https://img.sanishtech.com/u/fec265396a4965182af89998cebe8b5d.jpg",
+          "https://img.sanishtech.com/u/be562c442f21fbc057f26b40343fd09f.jpg",
+          "https://img.sanishtech.com/u/3d8b3b2a8c771cb70577ccc6f705e03d.jpg",
+          "https://img.sanishtech.com/u/a024e494a925b06509a50be35f71ec03.jpg",
+          "https://img.sanishtech.com/u/7f0e86d6535761c6b1dbb00283485b8d.jpg",
+          "https://img.sanishtech.com/u/7cd164fc509e9496dc3c3c2b93c9cd25.jpg",
+          "https://img.sanishtech.com/u/c3bec42703a34556e9f480e8fada190d.jpg"
+        ],
+        "quantity": 0,
+        "description": ""
       }
     ],
     "description": ""
